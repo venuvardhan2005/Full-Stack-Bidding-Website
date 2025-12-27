@@ -1,0 +1,107 @@
+{
+  "tech_stack": [
+    "JavaScript",
+    "React",
+    "React Router DOM",
+    "Axios",
+    "Tailwind CSS",
+    "Vite"
+  ],
+  "features": [
+    {
+      "name": "App Routing",
+      "description": "Main application routing with protected routes and role-based access",
+      "files": ["Biiding-Website/src/App.jsx"]
+    },
+    {
+      "name": "Authentication Pages",
+      "description": "Login and registration pages for user authentication",
+      "files": ["Biiding-Website/src/pages/Login.jsx", "Biiding-Website/src/pages/Register.jsx"]
+    },
+    {
+      "name": "Protected Route Component",
+      "description": "Route protection component that checks authentication and role permissions",
+      "files": ["Biiding-Website/src/components/ProtectedRoute.jsx"]
+    },
+    {
+      "name": "Dashboard Layout",
+      "description": "Main dashboard layout with sidebar navigation for clients and freelancers",
+      "files": ["Biiding-Website/src/components/Layout/DashboardLayout.jsx"]
+    },
+    {
+      "name": "Admin Layout",
+      "description": "Admin panel layout with sidebar navigation",
+      "files": ["Biiding-Website/src/components/Layout/AdminLayout.jsx"]
+    },
+    {
+      "name": "Overview Dashboard",
+      "description": "Dashboard overview showing statistics for clients and freelancers",
+      "files": ["Biiding-Website/src/pages/Dashboard/Overview.jsx"]
+    },
+    {
+      "name": "Post Job",
+      "description": "Client page to post new jobs with title, category, description, budget, and deadline",
+      "files": ["Biiding-Website/src/pages/Dashboard/PostJob.jsx"]
+    },
+    {
+      "name": "My Jobs",
+      "description": "Client page showing all posted jobs with status, budget, and actions",
+      "files": ["Biiding-Website/src/pages/Dashboard/MyJobs.jsx"]
+    },
+    {
+      "name": "Job Details",
+      "description": "Detailed view of a job with bids (for clients) or bid form (for freelancers)",
+      "files": ["Biiding-Website/src/pages/Dashboard/JobDetails.jsx"]
+    },
+    {
+      "name": "Browse Jobs",
+      "description": "Freelancer page to browse available jobs with search and category filters",
+      "files": ["Biiding-Website/src/pages/Dashboard/BrowseJobs.jsx"]
+    },
+    {
+      "name": "Place Bid",
+      "description": "Freelancer page to place a bid on a specific job",
+      "files": ["Biiding-Website/src/pages/Dashboard/PlaceBid.jsx"]
+    },
+    {
+      "name": "My Bids",
+      "description": "Freelancer page showing all submitted bids with status",
+      "files": ["Biiding-Website/src/pages/Dashboard/MyBids.jsx"]
+    },
+    {
+      "name": "Messages",
+      "description": "Messaging system for clients and freelancers on hired jobs",
+      "files": ["Biiding-Website/src/pages/Dashboard/Messages.jsx"]
+    },
+    {
+      "name": "Profile",
+      "description": "User profile page to update name, bio, and skills",
+      "files": ["Biiding-Website/src/pages/Dashboard/Profile.jsx"]
+    },
+    {
+      "name": "Admin Dashboard",
+      "description": "Admin dashboard showing platform statistics and recent activity",
+      "files": ["Biiding-Website/src/pages/Admin/AdminDashboard.jsx"]
+    },
+    {
+      "name": "Manage Users",
+      "description": "Admin page to view, block/unblock, and delete users",
+      "files": ["Biiding-Website/src/pages/Admin/ManageUsers.jsx"]
+    },
+    {
+      "name": "Manage Jobs",
+      "description": "Admin page to view all jobs and force close them",
+      "files": ["Biiding-Website/src/pages/Admin/ManageJobs.jsx"]
+    },
+    {
+      "name": "API Service",
+      "description": "Axios-based API client with interceptors for authentication and error handling",
+      "files": ["Biiding-Website/src/utils/api.js"]
+    },
+    {
+      "name": "Authentication Utilities",
+      "description": "Utility functions for token management, user management, and role checking",
+      "files": ["Biiding-Website/src/utils/auth.js"]
+    }
+  ]
+}

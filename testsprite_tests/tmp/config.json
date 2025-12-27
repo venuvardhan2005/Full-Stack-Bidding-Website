@@ -1,0 +1,16 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:5173",
+  "executionArgs": {
+    "projectName": "College Project",
+    "projectPath": "C:\\Users\\venuv\\OneDrive\\Desktop\\College Project",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-phPAQTqZp-srIwqwaml11lrhhLj1YUAVJa06uUw0KcSCYqqpOnVEVwigmZjFedSpO63AUtSRDb6DwM0b0jMNhZz5T-aRxL6nUiAg-yiXU4F6T7uCRCho8i-BWXvzfSV2UhU"
+    }
+  },
+  "proxy": "http://3fec3a09-4689-4713-bbac-cfebb4cd13c7:pjnlsejWTXHwNaAuwO4b6qt81ijc9bgJ@tun.testsprite.com:8080"
+}

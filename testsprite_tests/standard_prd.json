@@ -1,0 +1,1298 @@
+{
+  "meta": {
+    "project": "Freelance Marketplace - Job Bidding Service Platform",
+    "date": "2025-12-04",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "A full-stack freelance marketplace platform that facilitates interaction between clients and freelancers. Clients can post and manage jobs while freelancers can browse and bid on jobs. The platform includes secure authentication, role-based access control, messaging, and an admin dashboard for management.",
+  "core_goals": [
+    "Provide a secure and scalable platform for clients to post jobs and hire freelancers.",
+    "Enable freelancers to browse available jobs and submit competitive bids.",
+    "Ensure robust authentication and authorization with role-based access.",
+    "Facilitate clear and efficient communication between clients and freelancers.",
+    "Offer comprehensive admin tools to manage users, jobs, and overall platform health."
+  ],
+  "key_features": [
+    "User registration and login with JWT authentication supporting client, freelancer, and admin roles.",
+    "Client features including job posting, job management, bid review, hiring freelancers, and status updates.",
+    "Freelancer features including job browsing with filters, bidding on jobs, viewing bid history, and messaging clients.",
+    "Admin features such as viewing platform statistics, user management (block/unblock/delete), job oversight, and administrative job closures.",
+    "Basic messaging system to facilitate communication between clients and freelancers regarding specific jobs.",
+    "Profile management features allowing users to update personal information and skills.",
+    "Health check API to verify server status.",
+    "Role-based access control enforced for protected routes and actions."
+  ],
+  "user_flow_summary": [
+    "User registers with role selection (client or freelancer), logs in using email and password, receiving a JWT token.",
+    "Clients create new job postings with details like title, category, budget, description, and deadlines.",
+    "Freelancers browse available jobs, filter by category and status, and place bids with proposals.",
+    "Clients view bids on their jobs, hire freelancers by accepting bids, and update job statuses (open, hired, completed, closed).",
+    "Users send and receive messages tied to specific jobs to facilitate negotiations and clarifications.",
+    "Admins access the dashboard to review statistics, manage users and jobs, including blocking/unblocking users and force-closing jobs.",
+    "Users can manage and update their profiles including bio and skills."
+  ],
+  "validation_criteria": [
+    "All user inputs validated using Joi schemas for registration, login, job posting, bidding, and messaging.",
+    "JWT authentication tokens must be validated on protected routes ensuring correct user roles for actions.",
+    "Role-based access control correctly restricts features to client, freelancer, and admin roles.",
+    "API endpoints must respond with appropriate status codes such as 200, 201, 400, 401, 403, 404, and 500 per documented scenarios.",
+    "Password hashing with bcrypt is applied for user passwords before storage.",
+    "Admin functions and sensitive operations require admin role and deny access otherwise.",
+    "Messaging and bid placements require that the referenced job exists and that users have correct permissions.",
+    "Health check endpoint must return server status reliably.",
+    "Frontend must display up-to-date and accurate data consistent with backend responses."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "Mongoose",
+      "JWT",
+      "bcryptjs",
+      "Joi",
+      "CORS"
+    ],
+    "features": [
+      {
+        "name": "Health Check API",
+        "description": "Health check endpoint to verify server is running",
+        "files": [
+          "backend/server.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/health": {
+              "get": {
+                "summary": "Health check",
+                "responses": {
+                  "200": {
+                    "description": "Server is running",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "User Registration",
+        "description": "Register a new user (client or freelancer)",
+        "files": [
+          "backend/routes/auth.js",
+          "backend/models/User.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/auth/register": {
+              "post": {
+                "summary": "Register new user",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "email",
+                          "password",
+                          "role"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "minLength": 2,
+                            "maxLength": 50
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email"
+                          },
+                          "password": {
+                            "type": "string",
+                            "minLength": 6
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "client",
+                              "freelancer"
+                            ]
+                          },
+                          "skills": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "User registered successfully"
+                  },
+                  "400": {
+                    "description": "Validation error or user already exists"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "User Login",
+        "description": "Login user and get JWT token",
+        "files": [
+          "backend/routes/auth.js",
+          "backend/models/User.js",
+          "backend/middleware/auth.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/auth/login": {
+              "post": {
+                "summary": "Login user",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "email",
+                          "password"
+                        ],
+                        "properties": {
+                          "email": {
+                            "type": "string",
+                            "format": "email"
+                          },
+                          "password": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Login successful"
+                  },
+                  "401": {
+                    "description": "Invalid credentials"
+                  },
+                  "403": {
+                    "description": "Account blocked"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Current User",
+        "description": "Get authenticated user's profile",
+        "files": [
+          "backend/routes/auth.js",
+          "backend/middleware/auth.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/auth/me": {
+              "get": {
+                "summary": "Get current user",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "User profile"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Update Profile",
+        "description": "Update user profile information",
+        "files": [
+          "backend/routes/auth.js",
+          "backend/middleware/auth.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/auth/profile": {
+              "put": {
+                "summary": "Update profile",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "bio": {
+                            "type": "string"
+                          },
+                          "skills": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Profile updated"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get All Jobs",
+        "description": "Get all jobs with optional search and filter",
+        "files": [
+          "backend/routes/jobs.js",
+          "backend/models/Job.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs": {
+              "get": {
+                "summary": "Get all jobs",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "search",
+                    "in": "query",
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "category",
+                    "in": "query",
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "status",
+                    "in": "query",
+                    "schema": {
+                      "type": "string",
+                      "enum": [
+                        "open",
+                        "hired",
+                        "completed",
+                        "closed"
+                      ]
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of jobs"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Single Job",
+        "description": "Get job details by ID",
+        "files": [
+          "backend/routes/jobs.js",
+          "backend/models/Job.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs/{id}": {
+              "get": {
+                "summary": "Get job by ID",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Job details"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Create Job",
+        "description": "Create a new job (client only)",
+        "files": [
+          "backend/routes/jobs.js",
+          "backend/models/Job.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs": {
+              "post": {
+                "summary": "Create job",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "title",
+                          "category",
+                          "description",
+                          "budget"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "minLength": 3,
+                            "maxLength": 100
+                          },
+                          "category": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 10
+                          },
+                          "budget": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "deadline": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Job created"
+                  },
+                  "400": {
+                    "description": "Validation error"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - client role required"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Client Jobs",
+        "description": "Get all jobs posted by authenticated client",
+        "files": [
+          "backend/routes/jobs.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs/client/my-jobs": {
+              "get": {
+                "summary": "Get client's jobs",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of client's jobs"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - client role required"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Job Bids",
+        "description": "Get all bids for a specific job",
+        "files": [
+          "backend/routes/jobs.js",
+          "backend/models/Bid.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs/{id}/bids": {
+              "get": {
+                "summary": "Get bids for job",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Job and bids"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Update Job Status",
+        "description": "Update job status",
+        "files": [
+          "backend/routes/jobs.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs/{id}/status": {
+              "put": {
+                "summary": "Update job status",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "open",
+                              "hired",
+                              "completed",
+                              "closed"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Status updated"
+                  },
+                  "400": {
+                    "description": "Invalid status"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Delete Job",
+        "description": "Delete a job (client only)",
+        "files": [
+          "backend/routes/jobs.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/jobs/{id}": {
+              "delete": {
+                "summary": "Delete job",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Job deleted"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Place Bid",
+        "description": "Place a bid on a job (freelancer only)",
+        "files": [
+          "backend/routes/bids.js",
+          "backend/models/Bid.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/bids": {
+              "post": {
+                "summary": "Place bid",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "jobId",
+                          "amount",
+                          "message"
+                        ],
+                        "properties": {
+                          "jobId": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "message": {
+                            "type": "string",
+                            "minLength": 10
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Bid placed"
+                  },
+                  "400": {
+                    "description": "Validation error or job not accepting bids"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - freelancer role required"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get My Bids",
+        "description": "Get all bids by authenticated freelancer",
+        "files": [
+          "backend/routes/bids.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/bids/my-bids": {
+              "get": {
+                "summary": "Get freelancer's bids",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of bids"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - freelancer role required"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Job Bids",
+        "description": "Get all bids for a specific job",
+        "files": [
+          "backend/routes/bids.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/bids/job/{jobId}": {
+              "get": {
+                "summary": "Get bids for job",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "jobId",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of bids"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Hire Freelancer",
+        "description": "Accept a bid and hire freelancer (client only)",
+        "files": [
+          "backend/routes/bids.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/bids/{id}/hire": {
+              "put": {
+                "summary": "Hire freelancer",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Freelancer hired"
+                  },
+                  "400": {
+                    "description": "Job not open for hiring"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Bid not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Get Messages",
+        "description": "Get messages for a specific job",
+        "files": [
+          "backend/routes/messages.js",
+          "backend/models/Message.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/messages/job/{jobId}": {
+              "get": {
+                "summary": "Get messages for job",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "jobId",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of messages"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Send Message",
+        "description": "Send a message for a job",
+        "files": [
+          "backend/routes/messages.js",
+          "backend/models/Message.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/messages": {
+              "post": {
+                "summary": "Send message",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "jobId",
+                          "receiverId",
+                          "message"
+                        ],
+                        "properties": {
+                          "jobId": {
+                            "type": "string"
+                          },
+                          "receiverId": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Message sent"
+                  },
+                  "400": {
+                    "description": "Validation error"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Access denied"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Admin Dashboard",
+        "description": "Get admin dashboard statistics",
+        "files": [
+          "backend/routes/admin.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/admin/dashboard": {
+              "get": {
+                "summary": "Get admin dashboard stats",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Dashboard statistics"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - admin role required"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Admin Get Users",
+        "description": "Get all users (admin only)",
+        "files": [
+          "backend/routes/admin.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/admin/users": {
+              "get": {
+                "summary": "Get all users",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of users"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - admin role required"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Admin Update User Status",
+        "description": "Block or unblock a user (admin only)",
+        "files": [
+          "backend/routes/admin.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/admin/users/{id}/status": {
+              "put": {
+                "summary": "Update user status",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "active",
+                              "blocked"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Status updated"
+                  },
+                  "400": {
+                    "description": "Invalid status"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Cannot block admin"
+                  },
+                  "404": {
+                    "description": "User not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Admin Delete User",
+        "description": "Delete a user (admin only)",
+        "files": [
+          "backend/routes/admin.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/admin/users/{id}": {
+              "delete": {
+                "summary": "Delete user",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "User deleted"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Cannot delete admin"
+                  },
+                  "404": {
+                    "description": "User not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Admin Get Jobs",
+        "description": "Get all jobs (admin only)",
+        "files": [
+          "backend/routes/admin.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/admin/jobs": {
+              "get": {
+                "summary": "Get all jobs",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of jobs"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - admin role required"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Admin Force Close Job",
+        "description": "Force close a job (admin only)",
+        "files": [
+          "backend/routes/admin.js"
+        ],
+        "api_doc": {
+          "paths": {
+            "/api/admin/jobs/{id}/close": {
+              "put": {
+                "summary": "Force close job",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Job closed"
+                  },
+                  "401": {
+                    "description": "Unauthorized"
+                  },
+                  "403": {
+                    "description": "Forbidden - admin role required"
+                  },
+                  "404": {
+                    "description": "Job not found"
+                  },
+                  "500": {
+                    "description": "Server error"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

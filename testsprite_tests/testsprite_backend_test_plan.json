@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "health check api should return server status",
+    "description": "Verify that the GET /api/health endpoint returns a 200 status code with a JSON object containing the server status and message indicating the server is running."
+  },
+  {
+    "id": "TC002",
+    "title": "user registration should create new user with valid data",
+    "description": "Test POST /api/auth/register with valid user data including name, email, password, role, and optional skills. Expect 201 response and user creation. Also test validation errors and duplicate user scenarios."
+  },
+  {
+    "id": "TC003",
+    "title": "user login should return jwt token for valid credentials",
+    "description": "Test POST /api/auth/login with valid email and password to receive a JWT token. Verify 200 response for success, 401 for invalid credentials, and 403 if account is blocked."
+  },
+  {
+    "id": "TC004",
+    "title": "get current user should return authenticated user profile",
+    "description": "Test GET /api/auth/me with valid JWT token to retrieve the authenticated user's profile. Expect 200 response with user data, 401 if unauthorized."
+  },
+  {
+    "id": "TC005",
+    "title": "update profile should modify user information",
+    "description": "Test PUT /api/auth/profile with valid JWT token and profile update data (name, bio, skills). Expect 200 response confirming profile update, 401 if unauthorized."
+  },
+  {
+    "id": "TC006",
+    "title": "get all jobs should return filtered job list",
+    "description": "Test GET /api/jobs with optional query parameters (search, category, status) and valid JWT token. Verify 200 response with list of jobs matching filters, 401 if unauthorized."
+  },
+  {
+    "id": "TC007",
+    "title": "create job should allow client to post new job",
+    "description": "Test POST /api/jobs with client role JWT token and valid job data (title, category, description, budget, deadline). Expect 201 response for job creation, 403 if user is not client."
+  },
+  {
+    "id": "TC008",
+    "title": "place bid should allow freelancer to bid on job",
+    "description": "Test POST /api/bids with freelancer role JWT token and valid bid data (jobId, amount, message). Expect 201 response for successful bid, 403 if user is not freelancer, 404 if job not found."
+  },
+  {
+    "id": "TC009",
+    "title": "send message should allow user to message regarding job",
+    "description": "Test POST /api/messages with valid JWT token and message data (jobId, receiverId, message). Expect 201 response for message sent, 403 if access denied, 404 if job not found."
+  },
+  {
+    "id": "TC010",
+    "title": "admin dashboard should return platform statistics",
+    "description": "Test GET /api/admin/dashboard with admin role JWT token. Expect 200 response with dashboard statistics, 403 if user is not admin."
+  }
+]

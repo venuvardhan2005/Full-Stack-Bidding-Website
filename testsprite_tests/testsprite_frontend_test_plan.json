@@ -1,0 +1,704 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Registration Success",
+    "description": "Verify that a new user can register successfully with valid details and role selection (client or freelancer).",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST request to /api/auth/register with valid name, email, password, and role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 201"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response confirms user registration success"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is stored with hashed password"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Registration Validation Failure",
+    "description": "Verify registration fails with invalid or missing fields and disallow duplicate emails.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST request to /api/auth/register with missing required fields"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 400 with validation error message"
+      },
+      {
+        "type": "action",
+        "description": "Send POST request with existing email"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 400 with user already exists error"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "User Login Success",
+    "description": "Verify user can log in with correct email and password and receives JWT token.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST request to /api/auth/login with valid email and password"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 200"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response contains valid JWT token"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "User Login Failure",
+    "description": "Verify login fails with incorrect credentials or blocked account.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST request to /api/auth/login with invalid password"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 401 with invalid credentials message"
+      },
+      {
+        "type": "action",
+        "description": "Attempt login with blocked user account"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 403 with account blocked message"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Access Protected Route Without Token",
+    "description": "Verify accessing protected routes fails without JWT token or with invalid token.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send GET request to /api/auth/me without Authorization header"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 401 Unauthorized"
+      },
+      {
+        "type": "action",
+        "description": "Send GET request to /api/auth/me with invalid/expired token"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 401 Unauthorized"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Role-Based Access Control Enforcement",
+    "description": "Verify that clients, freelancers, and admin roles have access only to their respective APIs and actions.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as freelancer and attempt to create a job (client only)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 403 Forbidden"
+      },
+      {
+        "type": "action",
+        "description": "Login as client and attempt to access admin dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 403 Forbidden"
+      },
+      {
+        "type": "action",
+        "description": "Login as admin and perform admin-only actions"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful response code 200 or 201"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Create Job Posting Valid Input",
+    "description": "Verify that authenticated clients can create job postings with valid inputs.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as client and send POST to /api/jobs with valid job details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 201 Created"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify job is stored and retrievable via GET requests"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Create Job Posting Validation Failure",
+    "description": "Verify job creation fails with invalid or missing required data.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST to /api/jobs with missing title or budget"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 400 with validation error"
+      },
+      {
+        "type": "action",
+        "description": "Send POST to /api/jobs as non-client user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 403 Forbidden"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Job Browsing and Filtering",
+    "description": "Verify that freelancers can browse jobs and filter by category and status.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as freelancer and GET /api/jobs without filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response lists available jobs"
+      },
+      {
+        "type": "action",
+        "description": "GET /api/jobs with category and status filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify returned jobs match filters"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Place Bid Success",
+    "description": "Verify that authenticated freelancers can place bids on open jobs with valid proposals.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as freelancer and send POST to /api/bids with jobId of open job, bid amount, and message"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 201 Created"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify bid is stored and retrievable"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Place Bid Failure for Closed or Invalid Job",
+    "description": "Verify bidding is rejected for jobs that are not open or do not exist.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST to /api/bids for a job with status closed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 400 or 403 indicating bidding not allowed"
+      },
+      {
+        "type": "action",
+        "description": "Send POST with invalid jobId"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 404 Job not found"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "View Client's Jobs",
+    "description": "Verify that a client can retrieve a list of their own posted jobs.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as client and GET /api/jobs/client/my-jobs"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 200"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response contains only jobs posted by client"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Hire Freelancer by Accepting Bid",
+    "description": "Verify clients can hire a freelancer by accepting one of the bids on their job when job status is open.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as client and send PUT to /api/bids/{bidId}/hire for a bid on an open job"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 200"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify job status updates to hired and associated freelancer is set"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Hire Freelancer Failure on Non-Open Job",
+    "description": "Verify hire bid action is rejected if the job is not open for hiring.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Attempt to hire by PUT /api/bids/{bidId}/hire on job with status other than open"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 400 with appropriate error message"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Messaging Between Client and Freelancer",
+    "description": "Verify authenticated users can send and retrieve messages related to specific jobs if authorized.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send POST to /api/messages with valid jobId, receiverId, and message content"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 201 Message sent"
+      },
+      {
+        "type": "action",
+        "description": "Send GET to /api/messages/job/{jobId} as authorized user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response lists all messages for the job"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Messaging Error Handling for Unauthorized Access",
+    "description": "Verify messaging APIs deny access if the job does not exist or user is unauthorized.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send GET to /api/messages/job/{invalidJobId}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 404 Job not found"
+      },
+      {
+        "type": "action",
+        "description": "Send GET to /api/messages/job/{jobId} as a user not involved in the job"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 403 Access denied"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Admin Dashboard Access and Data Retrieval",
+    "description": "Verify admin users can access the dashboard endpoint and receive platform statistics.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and send GET to /api/admin/dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 200 and contains expected statistics data"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Admin User Management - Block/Unblock User",
+    "description": "Verify that admin can block or unblock users but cannot block admin users themselves.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and send PUT to /api/admin/users/{userId}/status with status 'blocked'"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 and user status updated"
+      },
+      {
+        "type": "action",
+        "description": "Try to block another admin user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 403 Forbidden"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Admin User Management - Delete User",
+    "description": "Verify that admin can delete users but cannot delete admin users themselves.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and send DELETE to /api/admin/users/{userId}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 User deleted"
+      },
+      {
+        "type": "action",
+        "description": "Try to delete an admin user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 403 Forbidden"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Admin Manage Jobs - Force Close Job",
+    "description": "Verify that admin can force close jobs via the admin API.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and send PUT to /api/admin/jobs/{jobId}/close"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 Job closed"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to force close a non-existent job"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 404 Job not found"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Update User Profile Successfully",
+    "description": "Verify authenticated users can update their profile (bio, skills, name) with valid data.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as user and send PUT to /api/auth/profile with valid update payload"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 200 Profile updated"
+      },
+      {
+        "type": "action",
+        "description": "Send GET to /api/auth/me to confirm profile data updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response reflects updated profile information"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Update User Profile Unauthorized Access",
+    "description": "Verify update profile API denies access without authorization.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send PUT to /api/auth/profile without JWT"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 401 Unauthorized"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "Update Job Status by Client",
+    "description": "Verify clients can update status of their jobs to valid statuses only.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as client and send PUT to /api/jobs/{jobId}/status with valid status field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 Status updated"
+      },
+      {
+        "type": "action",
+        "description": "Send PUT with invalid status value"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 400 Invalid status"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to update status for job not owned by client"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 403 Access denied"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Health Check API Response",
+    "description": "Verify health check endpoint responds with server status correctly.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send GET request to /api/health"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 200"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response JSON contains status and message fields indicating server is running"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Delete Job by Client",
+    "description": "Verify clients can delete jobs they posted and cannot delete jobs they do not own.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as client and send DELETE to /api/jobs/{jobId} for a job owned by client"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 Job deleted"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to delete job owned by another client"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 403 Forbidden"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to delete non-existent job"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 404 Job not found"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Get Single Job Details",
+    "description": "Verify authenticated users can retrieve job details by ID and receive appropriate errors if not found.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send GET to /api/jobs/{validJobId}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 with correct job data"
+      },
+      {
+        "type": "action",
+        "description": "Send GET to /api/jobs/{invalidJobId}"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 404 Job not found"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Get Freelancer Bids",
+    "description": "Verify freelancer can retrieve all their bids successfully.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as freelancer and send GET to /api/bids/my-bids"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 and lists only bids placed by the freelancer"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Admin View All Jobs and Users Access Control",
+    "description": "Verify only admin users can access endpoints to get all jobs and users, others are forbidden.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as admin and send GET to /api/admin/jobs and /api/admin/users"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 200 and data listed"
+      },
+      {
+        "type": "action",
+        "description": "Login as client or freelancer and attempt the same GET requests"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status 403 Forbidden"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "Validation of Input Data with Joi Schemas",
+    "description": "Verify that all user input endpoints implement Joi validation and return 400 on invalid payloads.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send requests with invalid data formats or missing required fields to registration, login, job posting, bidding, and messaging endpoints"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify response status code is 400 with detailed validation error messages"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Password Security - Hashing Before Storage",
+    "description": "Verify user passwords are hashed with bcrypt before database storage.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Register new user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify in database that stored password is hashed and not plain text"
+      }
+    ]
+  }
+]
